@@ -1,9 +1,9 @@
-#include "game.h"
+#include "gamelauncher.h"
 
 int main(int argc, char** argv) {
-	Game game;
+	GameLauncher gamelauncher;
 	
-	game.run();
+	gamelauncher.run();
 	
 	return 0;
 }

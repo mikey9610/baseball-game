@@ -10,39 +10,42 @@
 // class Answer
 
 const int AnswerLength = 4;
+const int AnswerMin = 0;
+const int AnswerMax = 9;
 
 class Answer {
 private:
 
-	int numeral_[AnswerLength];
+	vector<int> numeral_;
 	// field contains correct answer
-		
-	Answer() {}
-	// constructor ( concealed )
+	
+	Answer(vector<int> numeral) : numeral_(numeral) {}
 	
 public:	
 	
-	static Answer createAnswer() {
-		Answer answer;		
-		for(int i=0;i<AnswerLength;i++) {
-			cout << "input " << i+1 << "th number : ";
-			cin >> answer.numeral_[i];
-		}		
-		return answer;
+	static Answer createAnswer(vector<int> numeral) {
+		return Answer(numeral);
 	}
 	
-	static Answer createRandom() {
-		Answer answer;		
+	static Answer createRandom() {	
+		vector<int> numeral;
+		int random;
+		bool flag;
+		
 		for(int i=0;i<AnswerLength;i++) {
-			answer.numeral_[i] = rand()%10;
-			for(int j=0;j<i;j++) {
-				if(answer.numeral_[i]==answer.numeral_[j]) {
-					i--;
-					break;
+			do {
+				random = rand()%(AnswerMax-AnswerMin+1)+AnswerMin;	
+				flag = false;	
+				for(auto& n : numeral) {
+					if(random == n) {
+						flag = true;
+						break;
+					}
 				}
-			}
+			} while(flag);
+			numeral.push_back(random);
 		}		
-		return answer;
+		return Answer(numeral);
 	}
 	
 	Evaluation evaluate(const Answer& obj) {
@@ -61,10 +64,17 @@ public:
 	}
 	
 	void test_render() {
-		for(int i=0;i<AnswerLength;i++) {
-			cout << this->numeral_[i] << " ";
-		}
+		for(auto& n : numeral_)
+			cout << n << " ";
 		cout << endl;
+	}
+	
+	inline string toString() const {
+		string str = "";
+		for(int i=0;i<AnswerLength;i++) {
+			str += to_string(this->numeral_[i]) + " ";
+		}
+		return str;
 	}
 	
 };
