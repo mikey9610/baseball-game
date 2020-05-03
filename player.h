@@ -77,7 +77,10 @@ public:
 	BaseballAI() : Player("Computer",true) {}
 	
 	virtual Answer getAnswer() const override {
-		return Answer::createRandom();
+		if(this->logs_ans_.empty())
+			return Answer::createRandom();
+		
+		
 	}
 	
 };
