@@ -5,26 +5,20 @@
 #ifndef GAMELAUNCHER_H
 #define GAMELAUNCHER_H
 
-#include "game.h"
+#include "gameconstants.h"
 #include "renderer.h"
+#include "game.h"
 
 // class GameLauncher
 
 class GameLauncher {
-private:
-	
-	enum Menu {
-		START_GAME,
-		EXIT,
-		EN_MENU
-	};
-	const string menu_name[EN_MENU] = {"START GAME","EXIT"};
+private:	
 	
 	void showTitle() {
 		
 	}
 	
-	int showMainMenu() {
+	int showStartMenu() {
 		int menu=0;
 		
 		SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE),new CONSOLE_CURSOR_INFO{10,false});
@@ -32,22 +26,20 @@ private:
 		system("cls");
 		cout << "======= Main Menu =======" << endl;
 		for(int i=0;i<EN_MENU;i++) {
-			cout << "   " << menu_name[i] << endl;
+			cout << "   " << startmenu_name[i] << endl;
 		}
 		cout << "=========================" << endl;
 		
 		return Renderer::selectMenu(1,EN_MENU);
-
 	}
 	
 	void playGame() {
-		Game game;
+		Game game = Game::newGame();
 		
-		game.initialize();
 		int winner = game.run();
 		
 		system("cls");
-		cout << "PLAYER " << winner << " WIN THE GAME !" << endl;
+		cout << "PLAYER " << winner+1 << " WIN THE GAME !" << endl;
 		cout << "CONGRATULATION !";
 		getchar();
 	}
@@ -56,22 +48,23 @@ public:
 	
 	void run() {
 		bool flag=true;
-		int menu;
 		
 		showTitle();
 		while(flag) {
-			menu = showMainMenu();
+			int menu = showStartMenu();
 			
 			switch(menu) {
 			case START_GAME:
 				playGame();
 				break;
 				
+			case SETTING:
+				break;
+				
 			case EXIT:
 				flag = false;			
 			}
-		}
-		
+		}		
 	}
 	
 };

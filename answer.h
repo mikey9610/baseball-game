@@ -5,6 +5,7 @@
 #ifndef ANSWER_H
 #define ANSWER_H
 
+#include <vector>
 #include "evaluation.h"
 
 // class Answer
@@ -23,32 +24,9 @@ private:
 	
 public:	
 	
-	static Answer createAnswer(vector<int> numeral) {
-		return Answer(numeral);
-	}
+	static Answer createAnswer(vector<int> numeral) {	return Answer(numeral);	}
 	
-	static Answer createRandom() {	
-		vector<int> numeral;
-		int random;
-		bool flag;
-		
-		for(int i=0;i<AnswerLength;i++) {
-			do {
-				random = rand()%(AnswerMax-AnswerMin+1)+AnswerMin;	
-				flag = false;	
-				for(auto& n : numeral) {
-					if(random == n) {
-						flag = true;
-						break;
-					}
-				}
-			} while(flag);
-			numeral.push_back(random);
-		}		
-		return Answer(numeral);
-	}
-	
-	Evaluation evaluate(const Answer& obj) {
+	Evaluation evaluate(Answer obj) {
 		Evaluation evaluation{0,0};
 		for(int i=0;i<AnswerLength;i++) {
 			for(int j=0;j<AnswerLength;j++) {
@@ -63,10 +41,17 @@ public:
 		return evaluation;
 	}
 	
-	void test_render() {
-		for(auto& n : numeral_)
-			cout << n << " ";
-		cout << endl;
+	bool contain(int n) {
+		for(const auto& a : numeral_)
+			if(a==n)
+				return true;
+		return false;
+	}
+	
+	Answer add(int n) {
+		Answer answer(*this);
+		answer.numeral_.push_back(n);
+		return answer;
 	}
 	
 	inline string toString() const {
@@ -77,8 +62,14 @@ public:
 		return str;
 	}
 	
+	inline bool operator<(const Answer& opr) const {
+		for(int i=0;i<numeral_.size();i++) {
+			if(numeral_[i] != opr.numeral_[i])
+				return numeral_[i] < opr.numeral_[i];
+		}
+		return false;
+	}
+	
 };
-
-
 
 #endif

@@ -6,45 +6,47 @@
 #define PLAYER_H
 
 #include <vector>
+#include <map>
+#include "renderer.h"
 #include "answer.h"
 
 // interface Player
 
 class Player {
 protected:
-	Player(string name, bool isAI) : name_(name), isAI_(isAI) {}
 	
 	string name_;
-	bool isAI_;
 	
-	vector<Answer> logs_ans_;
-	vector<Evaluation> logs_evl_;
+	bool isAI_;
+		
+	Player(string name, bool isAI) : name_(name), isAI_(isAI) {}
+	// constructor (concealed)
 	
 public:
+	
+	inline string getName() const {	return this->name_;	}
 	
 	inline bool isAI() const {	return this->isAI_;	}
 	
 	virtual Answer getAnswer() const = 0;
 
-	virtual void learn(Answer ans, Evaluation evl) {
-		this->logs_ans_.push_back(ans);
-		this->logs_evl_.push_back(evl);
-	}
+	virtual void learn(Answer,Evaluation) = 0;
 	
-	inline string getName() const {	return this->name_;	}
-	inline vector<Answer> getAnswerLogs() const {	return this->logs_ans_;	}
-	inline vector<Evaluation> getEvaluationLogs() const {	return this->logs_evl_;	}
-
 };
+
+// class Human
 
 class Human : public Player {
 protected:
+	
+	map<Answer,Evaluation> logs_;
 
 public:
 	
 	Human(string name = "Player") : Player(name,false) {}
+	// constructor
 	
-	virtual Answer getAnswer() const override {
+	virtual Answer getAnswer() const override final {
 		vector<int> numeral;
 		int number;
 		bool flag;
@@ -65,23 +67,70 @@ public:
 			numeral.push_back(number);
 		}
 		return Answer::createAnswer(numeral);
+	}	
+	
+	virtual void learn(Answer ans, Evaluation evl) override final {
+		this->logs_.insert(make_pair(ans,evl));
+	}
+	
+	void renderLogs(int x, int y) {
+		int row=1;
+		
+		Renderer::gotoxy(x,y);
+		cout << "===== RECORD =====";
+		
+		for(auto& l : logs_) {
+			Renderer::gotoxy(x,y+row);
+			cout << l.first.toString() << "-> " << l.second.toString();
+			row++;
+		}
+		
+		Renderer::gotoxy(x,y+row);
+		cout << "==================" << endl << endl;
 	}
 	
 };
 
+// class BaseballAI
+
 class BaseballAI : public Player {
 protected:
 
+	vector<Answer> possible_;
+
+	vector<Answer> rCreateAnswer(vector<Answer> list) {		
+		vector<Answer> new_list;
+		for(auto& a : list) {
+			for(int i=AnswerMin;i<=AnswerMax;i++) {
+				if(!a.contain(i))
+					new_list.push_back(a.add(i));
+			}
+		}
+		return new_list;
+	}
+	
 public:
 	
-	BaseballAI() : Player("Computer",true) {}
-	
-	virtual Answer getAnswer() const override {
-		if(this->logs_ans_.empty())
-			return Answer::createRandom();
+	BaseballAI() : Player("Computer",true) {
+		for(int i=AnswerMin;i<=AnswerMax;i++)
+			this->possible_.push_back(Answer::createAnswer(vector<int>{i}));
 		
-		
+		for(int i=1;i<AnswerLength;i++) {
+			this->possible_ = rCreateAnswer(this->possible_);		
+		}
 	}
+	
+	virtual Answer getAnswer() const override final {		
+		return possible_[rand()%this->possible_.size()];		
+	}
+	
+	virtual void learn(Answer ans, Evaluation evl) override final {
+		for(auto iter = possible_.begin(); iter<possible_.end(); iter++) {
+			while((*iter).evaluate(ans)!=evl && iter<possible_.end()) {
+				possible_.erase(iter);
+			}	
+		}
+	}	
 	
 };
 

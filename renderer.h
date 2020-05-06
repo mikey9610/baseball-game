@@ -6,11 +6,17 @@
 #define RENDERER_H
 
 #include <Windows.h>
-#include "player.h"
+#include <conio.h>
+#include <iostream>
+using namespace std;
 
-// class Renderer
+// static class Renderer
 
 class Renderer {
+protected:
+	
+	Renderer() {}
+	
 public:
 	
 	static void gotoxy(int x, int y) {
@@ -42,28 +48,6 @@ public:
 		}
 	}
 	
-	static void rendererPlayerLog(Player& player, int x, int y) {
-		gotoxy(x,y);
-		cout << "===== RECORD =====";
-		
-		int row=1;
-		for(auto& answer : player.getAnswerLogs()) {
-			gotoxy(x,y+row);
-			cout << answer.toString() << "->";
-			row++;
-		}
-		
-		row = 1;
-		for(auto& evaluation : player.getEvaluationLogs()) {
-			gotoxy(x+11,y+row);
-			cout << evaluation.toString();
-			row++;
-		}
-		
-		gotoxy(x,y+row);
-		cout << "==================" << endl << endl;
-	}
-
 };
 
 #endif
